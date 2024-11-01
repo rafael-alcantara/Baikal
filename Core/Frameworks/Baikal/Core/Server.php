@@ -142,6 +142,7 @@ class Server {
 
         $nodes = [
             new \Sabre\CalDAV\Principal\Collection($principalBackend),
+            new \Sabre\DAV\FS\Directory('public')
         ];
         if ($this->enableCalDAV) {
             $calendarBackend = new \Sabre\CalDAV\Backend\PDO($this->pdo);
@@ -157,11 +158,14 @@ class Server {
 
         $this->server->addPlugin(new \Sabre\DAV\Auth\Plugin($authBackend, $this->authRealm));
         $this->server->addPlugin(new \Sabre\DAVACL\Plugin());
+        $lockBackend = new DAV\Locks\Backend\File('data/locks');
+        $this->server->addPlugin(new DAV\Locks\Plugin($lockBackend));
         $this->server->addPlugin(new \Sabre\DAV\Browser\Plugin());
 
         $this->server->addPlugin(new \Sabre\DAV\PropertyStorage\Plugin(
             new \Sabre\DAV\PropertyStorage\Backend\PDO($this->pdo)
         ));
+
 
         // WebDAV-Sync!
         $this->server->addPlugin(new \Sabre\DAV\Sync\Plugin());
